@@ -14,8 +14,8 @@ public class FileUploadService {
 
     public void uploadFile(MultipartFile file) {
         // Replace with your GCP bucket name, parent folder, and PDF file path
-        String bucketName = "pdf-bucket-aa";
-        String parentFolder = "pdfs"; // This can be nested folders like "folder1/folder2"
+        String bucketName = "docuforge-input";
+        String parentFolder = "pdf_files"; // This can be nested folders like "folder1/folder2"
 
         try {
             uploadFileToBucket(bucketName, parentFolder, file);

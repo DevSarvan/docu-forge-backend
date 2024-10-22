@@ -1,6 +1,8 @@
 
 package com.mycompany.pdfchat.controller;
 
+import com.mycompany.pdfchat.Dto.ChatResponseDto;
+import com.mycompany.pdfchat.Dto.UploadResponseDto;
 import com.mycompany.pdfchat.service.FileUploadService;
 import com.mycompany.pdfchat.service.PdfProcessingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,23 +21,27 @@ public class PdfController {
     private FileUploadService fileUploadService;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadPdf(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<UploadResponseDto> uploadPdf(@RequestParam("file") MultipartFile file) {
+        UploadResponseDto responseDto= new UploadResponseDto();
         try {
             fileUploadService.uploadFile(file);
             String summary = pdfProcessingService.summariesPdf(file);
-            return ResponseEntity.ok(summary);
+            responseDto.setSummary(summary);
+            return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error processing PDF: " + e.getMessage());
+            return ResponseEntity.status(500).body(null);
         }
     }
 
     @PostMapping("/chat")
-    public ResponseEntity<String> askQuery(@RequestParam("query") String query) {
+    public ResponseEntity<ChatResponseDto> askQuery(@RequestParam("query") String query) {
         try {
+            ChatResponseDto responseDto=new ChatResponseDto();
             String answer = pdfProcessingService.processQuery(query);
-            return ResponseEntity.ok(answer);
+            responseDto.setReply(answer);
+            return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error processing query: " + e.getMessage());
+            return ResponseEntity.status(500).body(null);
         }
     }
 }
