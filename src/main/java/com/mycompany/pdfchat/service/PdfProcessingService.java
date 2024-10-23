@@ -24,6 +24,8 @@ public class PdfProcessingService {
         String ask(String question);
     }
 
+    InMemoryEmbeddingStore<TextSegment> embeddingStore =null;
+
     public String summariesPdf(MultipartFile file) throws IOException {
 
         ApachePdfBoxDocumentParser pdfParser = new ApachePdfBoxDocumentParser();
@@ -38,7 +40,7 @@ public class PdfProcessingService {
                 .maxRetries(3)
                 .build();
 
-        InMemoryEmbeddingStore<TextSegment> embeddingStore =
+        embeddingStore =
                 new InMemoryEmbeddingStore<>();
 
         EmbeddingStoreIngestor storeIngestor = EmbeddingStoreIngestor.builder()
@@ -85,9 +87,6 @@ public class PdfProcessingService {
                 .modelName("textembedding-gecko@003")
                 .maxRetries(3)
                 .build();
-
-        InMemoryEmbeddingStore<TextSegment> embeddingStore =
-                new InMemoryEmbeddingStore<>();
 
         return getStringResponse(embeddingStore, embeddingModel,query);
 
