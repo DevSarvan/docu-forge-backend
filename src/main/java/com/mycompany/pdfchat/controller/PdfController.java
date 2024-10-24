@@ -27,9 +27,10 @@ public class PdfController {
             fileUploadService.uploadFile(file);
             String summary = pdfProcessingService.summariesPdf(file);
             responseDto.setSummary(summary);
+            responseDto.setMessage("File uploading has been done successfully");
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            responseDto.setMessage("Error occured while uploading the file");
+            responseDto.setMessage("Error occurred while uploading the file");
             return ResponseEntity.status(500).body(responseDto);
         }
     }
@@ -40,9 +41,10 @@ public class PdfController {
         try {
             String answer = pdfProcessingService.getStringResponse(query);
             responseDto.setReply(answer);
+            responseDto.setMessage("Prompting has been done successfully");
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            responseDto.setMessage("Error occured while prompting");
+            responseDto.setMessage("Error occurred while prompting");
             return ResponseEntity.status(500).body(responseDto);
         }
     }
