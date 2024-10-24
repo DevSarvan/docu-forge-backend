@@ -27,21 +27,25 @@ public class PdfController {
             fileUploadService.uploadFile(file);
             String summary = pdfProcessingService.summariesPdf(file);
             responseDto.setSummary(summary);
+            responseDto.setMessage("File uploading has been done successfully");
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            responseDto.setMessage("Error occurred while uploading the file");
+            return ResponseEntity.status(500).body(responseDto);
         }
     }
 
     @PostMapping("/chat")
     public ResponseEntity<ChatResponseDto> askQuery(@RequestParam("query") String query) {
+        ChatResponseDto responseDto=new ChatResponseDto();
         try {
-            ChatResponseDto responseDto=new ChatResponseDto();
-            String answer = pdfProcessingService.processQuery(query);
+            String answer = pdfProcessingService.getStringResponse(query);
             responseDto.setReply(answer);
+            responseDto.setMessage("Prompting has been done successfully");
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            responseDto.setMessage("Error occurred while prompting");
+            return ResponseEntity.status(500).body(responseDto);
         }
     }
 }

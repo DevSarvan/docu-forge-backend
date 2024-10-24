@@ -24,14 +24,15 @@ public class PdfProcessingService {
         String ask(String question);
     }
 
-    InMemoryEmbeddingStore<TextSegment> embeddingStore =null;
+    private InMemoryEmbeddingStore<TextSegment> embeddingStore =null;
+    private VertexAiEmbeddingModel embeddingModel=null;
 
     public String summariesPdf(MultipartFile file) throws IOException {
 
         ApachePdfBoxDocumentParser pdfParser = new ApachePdfBoxDocumentParser();
         Document document = pdfParser.parse(file.getInputStream());
 
-        VertexAiEmbeddingModel embeddingModel = VertexAiEmbeddingModel.builder()
+         embeddingModel = VertexAiEmbeddingModel.builder()
                 .endpoint(System.getenv("LOCATION") + "-aiplatform.googleapis.com:443")
                 .project(System.getenv("PROJECT_ID"))
                 .location(System.getenv("LOCATION"))
@@ -53,10 +54,14 @@ public class PdfProcessingService {
         storeIngestor.ingest(document);
         System.out.println("Ready!\n");
         String ques= "Summarize the content of the PDF file uploaded?";
-        return getStringResponse(embeddingStore, embeddingModel,ques);
+        return getStringResponse(ques);
     }
 
-    private static String getStringResponse(InMemoryEmbeddingStore<TextSegment> embeddingStore, VertexAiEmbeddingModel embeddingModel, String ques) {
+    public String getStringResponse(String ques) {
+
+        InMemoryEmbeddingStore<TextSegment> segmentInMemoryEmbeddingStore=embeddingStore;
+        VertexAiEmbeddingModel vertexAiEmbeddingModel=embeddingModel;
+
         ChatLanguageModel model = VertexAiGeminiChatModel.builder()
                 .project(System.getenv("PROJECT_ID"))
                 .location(System.getenv("LOCATION"))
@@ -65,7 +70,7 @@ public class PdfProcessingService {
                 .build();
 
         EmbeddingStoreContentRetriever retriever =
-                new EmbeddingStoreContentRetriever(embeddingStore, embeddingModel);
+                new EmbeddingStoreContentRetriever(segmentInMemoryEmbeddingStore, vertexAiEmbeddingModel);
         LlmExpert expert = AiServices.builder(LlmExpert.class)
                 .chatLanguageModel(model)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
@@ -76,21 +81,4 @@ public class PdfProcessingService {
         System.out.printf("%n=== %s === %n%n %s %n%n", ques, response);
         return response;
     }
-
-    public String processQuery(String query) throws IOException {
-
-        VertexAiEmbeddingModel embeddingModel = VertexAiEmbeddingModel.builder()
-                .endpoint(System.getenv("LOCATION") + "-aiplatform.googleapis.com:443")
-                .project(System.getenv("PROJECT_ID"))
-                .location(System.getenv("LOCATION"))
-                .publisher("google")
-                .modelName("textembedding-gecko@003")
-                .maxRetries(3)
-                .build();
-
-        return getStringResponse(embeddingStore, embeddingModel,query);
-
-    }
-
-
 }
